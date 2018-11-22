@@ -48,14 +48,14 @@
     }
 
     class Client {
-        constructor(serverUrl, mqttEnv, topics = [], mqttConnectOptions = {}) {
+        constructor(serverUrl, mqttEnv, mqttConnectOptions = {}) {
             this.serverUrl = serverUrl;
             this.mqttEnv = mqttEnv;
-            this.topics = topics;
             this.mqttConnectOptions = mqttConnectOptions;
+            this.client = null;
             this._connected = false;
             this._subscribed = false;
-            this.client = null;
+            this.topics = [];
             this._handlers = [];
             this._actionHandler = {};
             this.onMqttMessage = (topic, message, packet) => {
@@ -105,6 +105,9 @@
                 }
                 this._subscribed = this._subscribed && this.topics.length > 0;
             }
+        }
+        getTopics() {
+            return [...this.topics];
         }
         publish(topic, message) {
             this.assertConnected();

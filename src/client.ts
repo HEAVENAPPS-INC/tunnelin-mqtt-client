@@ -10,9 +10,11 @@ import {
 } from "./utils/mqtt-utils";
 
 export default class Client {
+  public client: MqttClient | null = null;
+
   private _connected: boolean = false;
   private _subscribed: boolean = false;
-  public client: MqttClient | null = null;
+  private topics: string[] = [];
 
   private _handlers: Function[] = [];
   private _actionHandler: { [key: string]: Function[] } = {};
@@ -20,7 +22,6 @@ export default class Client {
   constructor(
     public serverUrl: string,
     public mqttEnv: string,
-    public topics: string[] = [],
     private mqttConnectOptions: Partial<IClientOptions> = {}
   ) {}
 
@@ -56,6 +57,10 @@ export default class Client {
       }
       this._subscribed = this._subscribed && this.topics.length > 0;
     }
+  }
+
+  public getTopics() {
+    return [...this.topics];
   }
 
   public publish(topic: string, message: any) {
