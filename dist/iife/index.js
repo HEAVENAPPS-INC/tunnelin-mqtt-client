@@ -45,10 +45,10 @@ var MqttClient = (function (exports,mqtt) {
     }
 
     class Client {
-        constructor(serverUrl, topics, mqttEnv, mqttConnectOptions = {}) {
+        constructor(serverUrl, mqttEnv, topics = [], mqttConnectOptions = {}) {
             this.serverUrl = serverUrl;
-            this.topics = topics;
             this.mqttEnv = mqttEnv;
+            this.topics = topics;
             this.mqttConnectOptions = mqttConnectOptions;
             this._connected = false;
             this._subscribed = false;
@@ -77,23 +77,30 @@ var MqttClient = (function (exports,mqtt) {
             await connectClient(this.client);
             this._connected = true;
             this.client.on("close", this.onClientClose);
-        }
-        subscribe() {
-            this.assertConnected();
-            if (this._subscribed) {
-                return;
-            }
-            subscribeToTopics(this.client, this.topics, this.mqttEnv);
             this.client.on("message", this.onMqttMessage);
-            this._subscribed = true;
         }
-        unsubscribe() {
+        subscribeToTopics(topics = this.topics) {
             this.assertConnected();
-            if (!this._subscribed) {
-                return;
+            const t = typeof topics === "string" ? [topics] : topics;
+            if (t.length) {
+                subscribeToTopics(this.client, t, this.mqttEnv);
+                this.topics = [...this.topics, ...t];
+                this._subscribed = true;
             }
-            unsubscribeFromTopics(this.client, this.topics, this.mqttEnv);
-            this._subscribed = false;
+        }
+        unsubscribeFromTopics(topics = this.topics) {
+            this.assertConnected();
+            const t = typeof topics === "string" ? [topics] : topics;
+            if (t.length) {
+                unsubscribeFromTopics(this.client, t, this.mqttEnv);
+                for (const topic of t) {
+                    const i = this.topics.indexOf(topic);
+                    if (i >= 0) {
+                        this.topics.splice(i, 1);
+                    }
+                }
+                this._subscribed = this._subscribed && this.topics.length > 0;
+            }
         }
         publish(topic, message) {
             this.assertConnected();
@@ -159,7 +166,7 @@ var MqttClient = (function (exports,mqtt) {
         }
         destroy() {
             try {
-                this.unsubscribe();
+                this.unsubscribeFromTopics();
             }
             catch (e) { }
             if (this._connected) {

@@ -1,18 +1,18 @@
 import { MqttClient, IClientOptions } from "mqtt";
 export default class Client {
     serverUrl: string;
-    topics: string[];
     mqttEnv: string;
+    topics: string[];
     private mqttConnectOptions;
     private _connected;
     private _subscribed;
     client: MqttClient | null;
     private _handlers;
     private _actionHandler;
-    constructor(serverUrl: string, topics: string[], mqttEnv: string, mqttConnectOptions?: Partial<IClientOptions>);
+    constructor(serverUrl: string, mqttEnv: string, topics?: string[], mqttConnectOptions?: Partial<IClientOptions>);
     connectClient(): Promise<void>;
-    subscribe(): void;
-    unsubscribe(): void;
+    subscribeToTopics(topics?: string | string[]): void;
+    unsubscribeFromTopics(topics?: string | string[]): void;
     publish(topic: string, message: any): void;
     addHandler(fn: Function): void;
     addHandlerForAction(actionType: string, fn: Function): void;

@@ -19,8 +19,8 @@ export default class Client {
 
   constructor(
     public serverUrl: string,
-    public topics: string[],
     public mqttEnv: string,
+    public topics: string[] = [],
     private mqttConnectOptions: Partial<IClientOptions> = {}
   ) {}
 
@@ -29,25 +29,32 @@ export default class Client {
     await connectClient(this.client);
     this._connected = true;
     this.client.on("close", this.onClientClose);
+    this.client.on("message", this.onMqttMessage);
   }
 
-  public subscribe() {
+  public subscribeToTopics(topics: string | string[] = this.topics) {
     this.assertConnected();
-    if (this._subscribed) {
-      return;
+    const t = typeof topics === "string" ? [topics] : topics;
+    if (t.length) {
+      subscribeToTopics(this.client!, t, this.mqttEnv);
+      this.topics = [...this.topics, ...t];
+      this._subscribed = true;
     }
-    subscribeToTopics(this.client!, this.topics, this.mqttEnv);
-    this.client!.on("message", this.onMqttMessage);
-    this._subscribed = true;
   }
 
-  public unsubscribe() {
+  public unsubscribeFromTopics(topics: string | string[] = this.topics) {
     this.assertConnected();
-    if (!this._subscribed) {
-      return;
+    const t = typeof topics === "string" ? [topics] : topics;
+    if (t.length) {
+      unsubscribeFromTopics(this.client!, t, this.mqttEnv);
+      for (const topic of t) {
+        const i = this.topics.indexOf(topic);
+        if (i >= 0) {
+          this.topics.splice(i, 1);
+        }
+      }
+      this._subscribed = this._subscribed && this.topics.length > 0;
     }
-    unsubscribeFromTopics(this.client!, this.topics, this.mqttEnv);
-    this._subscribed = false;
   }
 
   public publish(topic: string, message: any) {
@@ -139,7 +146,7 @@ export default class Client {
 
   public destroy() {
     try {
-      this.unsubscribe();
+      this.unsubscribeFromTopics();
     } catch (e) {}
     if (this._connected) {
       this.client!.end();
