@@ -40,8 +40,9 @@ class Client {
     }
     subscribeToTopics(topics = this.topics) {
         this.assertConnected();
-        const t = typeof topics === "string" ? [topics] : topics;
+        let t = typeof topics === "string" ? [topics] : topics;
         if (t.length) {
+            t = t.filter(topic => this.topics.indexOf(topic) === -1);
             mqttUtils.subscribeToTopics(this.client, t, this.mqttEnv);
             this.topics = [...this.topics, ...t];
             this._subscribed = true;
