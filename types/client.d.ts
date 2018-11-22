@@ -13,6 +13,7 @@ export default class Client {
     connectClient(): Promise<void>;
     subscribe(): void;
     unsubscribe(): void;
+    publish(topic: string, message: any): void;
     addHandler(fn: Function): void;
     addHandlerForAction(actionType: string, fn: Function): void;
     removeHandler(fn: Function): void;
@@ -21,6 +22,6 @@ export default class Client {
     private onMqttMessage;
     private provideMessageToActionHandlers;
     private onClientClose;
-    private check;
+    private assertConnected;
     destroy(): void;
 }

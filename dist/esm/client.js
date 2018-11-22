@@ -1,4 +1,4 @@
-import { subscribeToTopics, unsubscribeFromTopics, createClient, connectClient, withEnv } from './mqtt-utils.js';
+import { subscribeToTopics, unsubscribeFromTopics, createClient, connectClient, publish, withEnv } from './mqtt-utils.js';
 import 'mqtt';
 
 class Client {
@@ -36,9 +36,7 @@ class Client {
         this.client.on("close", this.onClientClose);
     }
     subscribe() {
-        if (!this.check()) {
-            return;
-        }
+        this.assertConnected();
         if (this._subscribed) {
             return;
         }
@@ -47,14 +45,16 @@ class Client {
         this._subscribed = true;
     }
     unsubscribe() {
-        if (!this.check()) {
-            return;
-        }
+        this.assertConnected();
         if (!this._subscribed) {
             return;
         }
         unsubscribeFromTopics(this.client, this.topics, this.mqttEnv);
         this._subscribed = false;
+    }
+    publish(topic, message) {
+        this.assertConnected();
+        publish(this.client, topic, message, this.mqttEnv);
     }
     addHandler(fn) {
         this._handlers.push(fn);
@@ -103,7 +103,7 @@ class Client {
             }
         }
     }
-    check() {
+    assertConnected() {
         if (!this._connected || !this.topics) {
             if (!this._connected) {
                 throw new Error(`Client is not connected: Please call connectClient method first`);
@@ -111,7 +111,6 @@ class Client {
             if (!this.topics) {
                 throw new Error(`There are no topics to subscribe`);
             }
-            return false;
         }
         return true;
     }

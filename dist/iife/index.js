@@ -37,6 +37,12 @@ var MqttClient = (function (exports,mqtt) {
         }
         return result;
     }, `${env}/`);
+    function publish(client, topic, message, env) {
+        const realTopic = withEnv(env) `${topic}`;
+        const publishMessage = JSON.stringify(message);
+        // logger.info(`Publishing message: ${publishMessage} to ${realTopic}`);
+        client.publish(realTopic, publishMessage);
+    }
 
     class Client {
         constructor(serverUrl, topics, mqttEnv, mqttConnectOptions = {}) {
@@ -73,9 +79,7 @@ var MqttClient = (function (exports,mqtt) {
             this.client.on("close", this.onClientClose);
         }
         subscribe() {
-            if (!this.check()) {
-                return;
-            }
+            this.assertConnected();
             if (this._subscribed) {
                 return;
             }
@@ -84,14 +88,16 @@ var MqttClient = (function (exports,mqtt) {
             this._subscribed = true;
         }
         unsubscribe() {
-            if (!this.check()) {
-                return;
-            }
+            this.assertConnected();
             if (!this._subscribed) {
                 return;
             }
             unsubscribeFromTopics(this.client, this.topics, this.mqttEnv);
             this._subscribed = false;
+        }
+        publish(topic, message) {
+            this.assertConnected();
+            publish(this.client, topic, message, this.mqttEnv);
         }
         addHandler(fn) {
             this._handlers.push(fn);
@@ -140,7 +146,7 @@ var MqttClient = (function (exports,mqtt) {
                 }
             }
         }
-        check() {
+        assertConnected() {
             if (!this._connected || !this.topics) {
                 if (!this._connected) {
                     throw new Error(`Client is not connected: Please call connectClient method first`);
@@ -148,7 +154,6 @@ var MqttClient = (function (exports,mqtt) {
                 if (!this.topics) {
                     throw new Error(`There are no topics to subscribe`);
                 }
-                return false;
             }
             return true;
         }

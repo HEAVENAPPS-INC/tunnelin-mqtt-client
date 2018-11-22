@@ -5,6 +5,7 @@ import {
   unsubscribeFromTopics,
   createClient,
   connectClient,
+  publish,
   withEnv
 } from "./utils/mqtt-utils";
 
@@ -31,9 +32,7 @@ export default class Client {
   }
 
   public subscribe() {
-    if (!this.check()) {
-      return;
-    }
+    this.assertConnected();
     if (this._subscribed) {
       return;
     }
@@ -43,14 +42,17 @@ export default class Client {
   }
 
   public unsubscribe() {
-    if (!this.check()) {
-      return;
-    }
+    this.assertConnected();
     if (!this._subscribed) {
       return;
     }
     unsubscribeFromTopics(this.client!, this.topics, this.mqttEnv);
     this._subscribed = false;
+  }
+
+  public publish(topic: string, message: any) {
+    this.assertConnected();
+    publish(this.client!, topic, message, this.mqttEnv);
   }
 
   public addHandler(fn: Function) {
@@ -123,7 +125,7 @@ export default class Client {
     this._connected = false;
   };
 
-  private check() {
+  private assertConnected() {
     if (!this._connected || !this.topics) {
       if (!this._connected) {
         throw new Error(`Client is not connected: Please call connectClient method first`);
@@ -131,8 +133,6 @@ export default class Client {
       if (!this.topics) {
         throw new Error(`There are no topics to subscribe`);
       }
-
-      return false;
     }
     return true;
   }
