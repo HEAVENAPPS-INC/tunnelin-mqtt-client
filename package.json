@@ -1,0 +1,31 @@
+{
+  "name": "node-mqtt-device-client",
+  "version": "0.0.1",
+  "description": "Tunnelin nodejs Mqtt client for devices",
+  "repository": "https://git.haffollc.com/tunnelin/node-mqtt-device-client.git",
+  "author": "Gevorg <gtopikyan@haffollc.com>",
+  "license": "MIT",
+  "main": "dist/umd/public_api.js",
+  "module": "dist/esm/public_api.js",
+  "typings": "types/public_api.d.ts",
+  "scripts": {
+    "clean": "rimraf dist && rimraf out && rimraf types",
+    "build": "yarn clean && tsc && yarn build:esm && yarn build:static",
+    "build:esm": "rollup -c",
+    "build:static": "rollup -c rollup.config.static.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "mqtt": "^2.18.8",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.67.3",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-typescript2": "^0.18.0",
+    "typescript": "^3.1.6"
+  },
+  "peerDependencies": {
+    "mqtt": "^2.18.8"
+  }
+}
