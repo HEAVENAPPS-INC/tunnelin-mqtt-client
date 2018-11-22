@@ -68,7 +68,6 @@ var MqttClient = (function (exports,mqtt) {
                 this.provideMessageToActionHandlers(topic, message, packet);
             };
             this.onClientClose = () => {
-                console.log("Client disconnected");
                 this._connected = false;
             };
         }
@@ -79,7 +78,7 @@ var MqttClient = (function (exports,mqtt) {
             this.client.on("close", this.onClientClose);
             this.client.on("message", this.onMqttMessage);
         }
-        subscribeToTopics(topics = this.topics) {
+        subscribeToTopics(topics) {
             this.assertConnected();
             let t = typeof topics === "string" ? [topics] : topics;
             if (t.length) {
@@ -89,7 +88,7 @@ var MqttClient = (function (exports,mqtt) {
                 this._subscribed = true;
             }
         }
-        unsubscribeFromTopics(topics = this.topics) {
+        unsubscribeFromTopics(topics) {
             this.assertConnected();
             const t = typeof topics === "string" ? [topics] : topics;
             if (t.length) {
@@ -158,19 +157,13 @@ var MqttClient = (function (exports,mqtt) {
             }
         }
         assertConnected() {
-            if (!this._connected || !this.topics) {
-                if (!this._connected) {
-                    throw new Error(`Client is not connected: Please call connectClient method first`);
-                }
-                if (!this.topics) {
-                    throw new Error(`There are no topics to subscribe`);
-                }
+            if (!this._connected) {
+                throw new Error(`Client is not connected: Please call connectClient method first`);
             }
-            return true;
         }
         destroy() {
             try {
-                this.unsubscribeFromTopics();
+                this.unsubscribeFromTopics(this.topics);
             }
             catch (e) { }
             if (this._connected) {

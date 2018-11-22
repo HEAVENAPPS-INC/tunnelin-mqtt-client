@@ -33,7 +33,7 @@ export default class Client {
     this.client.on("message", this.onMqttMessage);
   }
 
-  public subscribeToTopics(topics: string | string[] = this.topics) {
+  public subscribeToTopics(topics: string | string[]) {
     this.assertConnected();
     let t = typeof topics === "string" ? [topics] : topics;
     if (t.length) {
@@ -44,7 +44,7 @@ export default class Client {
     }
   }
 
-  public unsubscribeFromTopics(topics: string | string[] = this.topics) {
+  public unsubscribeFromTopics(topics: string | string[]) {
     this.assertConnected();
     const t = typeof topics === "string" ? [topics] : topics;
     if (t.length) {
@@ -134,25 +134,18 @@ export default class Client {
   }
 
   private onClientClose = () => {
-    console.log("Client disconnected");
     this._connected = false;
   };
 
   private assertConnected() {
-    if (!this._connected || !this.topics) {
-      if (!this._connected) {
-        throw new Error(`Client is not connected: Please call connectClient method first`);
-      }
-      if (!this.topics) {
-        throw new Error(`There are no topics to subscribe`);
-      }
+    if (!this._connected) {
+      throw new Error(`Client is not connected: Please call connectClient method first`);
     }
-    return true;
   }
 
   public destroy() {
     try {
-      this.unsubscribeFromTopics();
+      this.unsubscribeFromTopics(this.topics);
     } catch (e) {}
     if (this._connected) {
       this.client!.end();

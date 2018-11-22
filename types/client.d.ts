@@ -11,8 +11,8 @@ export default class Client {
     private _actionHandler;
     constructor(serverUrl: string, mqttEnv: string, mqttConnectOptions?: Partial<IClientOptions>);
     connectClient(): Promise<void>;
-    subscribeToTopics(topics?: string | string[]): void;
-    unsubscribeFromTopics(topics?: string | string[]): void;
+    subscribeToTopics(topics: string | string[]): void;
+    unsubscribeFromTopics(topics: string | string[]): void;
     getTopics(): string[];
     publish(topic: string, message: any): void;
     addHandler(fn: Function): void;
