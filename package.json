@@ -5,7 +5,7 @@
   "repository": "https://git.haffollc.com/tunnelin/node-mqtt-device-client.git",
   "author": "Gevorg <gtopikyan@haffollc.com>",
   "license": "MIT",
-  "main": "dist/umd/public_api.js",
+  "main": "dist/umd/index.js",
   "module": "dist/esm/public_api.js",
   "typings": "types/public_api.d.ts",
   "scripts": {
