@@ -96,7 +96,27 @@ export default class Client {
     for (const handler of this._handlers) {
       handler(topic, message, packet);
     }
+    this.provideMessageToActionHandlers(topic, message, packet);
   };
+
+  private provideMessageToActionHandlers(topic: string, message: string, packet: any) {
+    let parsedMessage;
+    try {
+      parsedMessage = JSON.parse(message);
+    } catch (e) {
+      // logger.warn(`'can not parse message from topic ${topic}, message: ${message}`);
+    }
+    if (!parsedMessage) {
+      return;
+    }
+    const { type } = parsedMessage;
+    if (type) {
+      const actionHandlers = this._actionHandler[type] || [];
+      for (const handler of actionHandlers) {
+        handler(topic, parsedMessage, packet);
+      }
+    }
+  }
 
   private onClientClose = () => {
     console.log("Client disconnected");

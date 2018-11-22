@@ -22,6 +22,7 @@ class Client {
             for (const handler of this._handlers) {
                 handler(topic, message, packet);
             }
+            this.provideMessageToActionHandlers(topic, message, packet);
         };
         this.onClientClose = () => {
             console.log("Client disconnected");
@@ -82,6 +83,25 @@ class Client {
     getTopicWithoutHash(topic) {
         const hasHashAtTheEnd = topic[topic.length - 1] === "#";
         return !hasHashAtTheEnd ? topic : topic.substr(0, topic.length - 1);
+    }
+    provideMessageToActionHandlers(topic, message, packet) {
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message);
+        }
+        catch (e) {
+            // logger.warn(`'can not parse message from topic ${topic}, message: ${message}`);
+        }
+        if (!parsedMessage) {
+            return;
+        }
+        const { type } = parsedMessage;
+        if (type) {
+            const actionHandlers = this._actionHandler[type] || [];
+            for (const handler of actionHandlers) {
+                handler(topic, parsedMessage, packet);
+            }
+        }
     }
     check() {
         if (!this._connected || !this.topics) {

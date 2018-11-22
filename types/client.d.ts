@@ -19,6 +19,7 @@ export default class Client {
     removeHandlerForAction(actionType: string, fn: Function): void;
     private getTopicWithoutHash;
     private onMqttMessage;
+    private provideMessageToActionHandlers;
     private onClientClose;
     private check;
     destroy(): void;
