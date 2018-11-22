@@ -14,6 +14,7 @@ export default class Client {
   public client: MqttClient | null = null;
 
   private _handlers: Function[] = [];
+  private _actionHandler: { [key: string]: Function[] } = {};
 
   constructor(
     public serverUrl: string,
@@ -56,11 +57,28 @@ export default class Client {
     this._handlers.push(fn);
   }
 
+  public addHandlerForAction(actionType: string, fn: Function) {
+    this._actionHandler[actionType] = this._actionHandler[actionType] || [];
+    this._actionHandler[actionType].push(fn);
+  }
+
   public removeHandler(fn: Function) {
     const i = this._handlers.indexOf(fn);
     if (i >= 0) {
       this._handlers.splice(i, 1);
     }
+  }
+
+  public removeHandlerForAction(actionType: string, fn: Function) {
+    const functions = this._actionHandler[actionType];
+    if (!functions) {
+      return;
+    }
+    const i = functions.indexOf(fn);
+    if (i >= 0) {
+      functions.splice(i, 1);
+    }
+    this._actionHandler[actionType] = functions;
   }
 
   private getTopicWithoutHash(topic: string) {
@@ -109,5 +127,7 @@ export default class Client {
     this._connected = false;
     this._subscribed = false;
     this.client = null;
+    this._handlers = [];
+    this._actionHandler = {};
   }
 }

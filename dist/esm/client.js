@@ -11,6 +11,7 @@ class Client {
         this._subscribed = false;
         this.client = null;
         this._handlers = [];
+        this._actionHandler = {};
         this.onMqttMessage = (topic, message, packet) => {
             const topics = this.topics
                 .map(t => withEnv(this.mqttEnv) `${this.getTopicWithoutHash(t)}`)
@@ -57,11 +58,26 @@ class Client {
     addHandler(fn) {
         this._handlers.push(fn);
     }
+    addHandlerForAction(actionType, fn) {
+        this._actionHandler[actionType] = this._actionHandler[actionType] || [];
+        this._actionHandler[actionType].push(fn);
+    }
     removeHandler(fn) {
         const i = this._handlers.indexOf(fn);
         if (i >= 0) {
             this._handlers.splice(i, 1);
         }
+    }
+    removeHandlerForAction(actionType, fn) {
+        const functions = this._actionHandler[actionType];
+        if (!functions) {
+            return;
+        }
+        const i = functions.indexOf(fn);
+        if (i >= 0) {
+            functions.splice(i, 1);
+        }
+        this._actionHandler[actionType] = functions;
     }
     getTopicWithoutHash(topic) {
         const hasHashAtTheEnd = topic[topic.length - 1] === "#";
@@ -90,6 +106,8 @@ class Client {
         this._connected = false;
         this._subscribed = false;
         this.client = null;
+        this._handlers = [];
+        this._actionHandler = {};
     }
 }
 
