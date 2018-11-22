@@ -40,12 +40,6 @@
         }
         return result;
     }, `${env}/`);
-    function publish(client, topic, message, env) {
-        const realTopic = withEnv(env) `${topic}`;
-        const publishMessage = JSON.stringify(message);
-        // logger.info(`Publishing message: ${publishMessage} to ${realTopic}`);
-        client.publish(realTopic, publishMessage);
-    }
 
     class Client {
         constructor(serverUrl, topics, mqttEnv, mqttConnectOptions = {}) {
@@ -140,12 +134,6 @@
     }
 
     exports.Client = Client;
-    exports.connectClient = connectClient;
-    exports.createClient = createClient;
-    exports.publish = publish;
-    exports.subscribeToTopics = subscribeToTopics;
-    exports.unsubscribeFromTopics = unsubscribeFromTopics;
-    exports.withEnv = withEnv;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
