@@ -12,17 +12,22 @@
     "clean": "rimraf dist && rimraf out && rimraf types",
     "build": "yarn clean && tsc && yarn build:esm && yarn build:static",
     "build:esm": "rollup -c",
-    "build:static": "rollup -c rollup.config.static.js"
+    "build:static": "rollup -c rollup.config.static.js",
+    "test": "npx jest",
+    "test:watch": "npx jest --watch"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
+    "@types/jest": "^23.3.13",
+    "jest": "^24.0.0",
     "mqtt": "^2.18.8",
     "rimraf": "^2.6.2",
     "rollup": "^0.67.3",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-typescript2": "^0.18.0",
+    "ts-jest": "^23.10.5",
     "typescript": "^3.1.6"
   },
   "peerDependencies": {

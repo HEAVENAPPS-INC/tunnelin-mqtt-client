@@ -15,6 +15,9 @@ export const connectClient = (client: MqttClient): Promise<void> => {
     client.on("error", function(e: any) {
       reject(e);
     });
+    client.on("offline", function() {
+      reject(new Error("Offline"));
+    });
   });
 };
 

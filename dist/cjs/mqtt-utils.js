@@ -17,6 +17,9 @@ const connectClient = (client) => {
         client.on("error", function (e) {
             reject(e);
         });
+        client.on("offline", function () {
+            reject(new Error("Offline"));
+        });
     });
 };
 function subscribeToTopics(client, topics, env) {
