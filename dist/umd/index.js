@@ -84,6 +84,14 @@
             this.client.on("close", this.onClientClose);
             this.client.on("message", this.onMqttMessage);
         }
+        async endClient() {
+            if (!this.connectClient) {
+                return Promise.resolve();
+            }
+            return new Promise(resolve => {
+                this.client.end(undefined, resolve);
+            });
+        }
         subscribeToTopics(topics) {
             this.assertConnected();
             let t = typeof topics === "string" ? [topics] : topics;
