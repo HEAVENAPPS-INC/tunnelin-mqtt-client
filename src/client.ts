@@ -118,7 +118,13 @@ export default class Client {
       return;
     }
     for (const handler of this._handlers) {
-      handler(topic, message, packet);
+      if (typeof handler === "function") {
+        try {
+          handler(topic, message, packet);
+        } catch (e) {
+          // handler throws error, not interested
+        }
+      }
     }
     this.provideMessageToActionHandlers(topic, message, packet);
   };
@@ -137,7 +143,13 @@ export default class Client {
     if (type) {
       const actionHandlers = this._actionHandler[type] || [];
       for (const handler of actionHandlers) {
-        handler(topic, parsedMessage, packet);
+        if (typeof handler === "function") {
+          try {
+            handler(topic, message, packet);
+          } catch (e) {
+            // handler throws error, not interested
+          }
+        }
       }
     }
   }
