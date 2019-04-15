@@ -56,7 +56,6 @@
             this.mqttEnv = mqttEnv;
             this.mqttConnectOptions = mqttConnectOptions;
             this.client = null;
-            this._connected = false;
             this._subscribed = false;
             this.topics = [];
             this._handlers = [];
@@ -80,15 +79,10 @@
                 }
                 this.provideMessageToActionHandlers(topic, message, packet);
             };
-            this.onClientClose = () => {
-                this._connected = false;
-            };
         }
         async connectClient() {
             this.client = createClient(this.serverUrl, this.mqttConnectOptions);
             await connectClient(this.client);
-            this._connected = true;
-            this.client.on("close", this.onClientClose);
             this.client.on("message", this.onMqttMessage);
         }
         async endClient() {
@@ -185,7 +179,7 @@
             }
         }
         assertConnected() {
-            if (!this._connected) {
+            if (!this.client.connected) {
                 throw new Error(`Client is not connected: Please call connectClient method first`);
             }
         }
@@ -194,10 +188,9 @@
                 this.unsubscribeFromTopics(this.topics);
             }
             catch (e) { }
-            if (this._connected) {
+            if (this.client.connected) {
                 this.client.end();
             }
-            this._connected = false;
             this._subscribed = false;
             this.client = null;
             this._handlers = [];

@@ -4,7 +4,6 @@ export default class Client {
     mqttEnv: string;
     private mqttConnectOptions;
     client: MqttClient | null;
-    private _connected;
     private _subscribed;
     private topics;
     private _handlers;
@@ -23,7 +22,6 @@ export default class Client {
     private getTopicWithoutHash;
     private onMqttMessage;
     private provideMessageToActionHandlers;
-    private onClientClose;
     private assertConnected;
     destroy(): void;
 }

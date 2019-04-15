@@ -12,7 +12,6 @@ import {
 export default class Client {
   public client: MqttClient | null = null;
 
-  private _connected: boolean = false;
   private _subscribed: boolean = false;
   private topics: string[] = [];
 
@@ -28,8 +27,6 @@ export default class Client {
   public async connectClient() {
     this.client = createClient(this.serverUrl, this.mqttConnectOptions);
     await connectClient(this.client);
-    this._connected = true;
-    this.client.on("close", this.onClientClose);
     this.client.on("message", this.onMqttMessage);
   }
 
@@ -154,12 +151,8 @@ export default class Client {
     }
   }
 
-  private onClientClose = () => {
-    this._connected = false;
-  };
-
   private assertConnected() {
-    if (!this._connected) {
+    if (!this.client!.connected) {
       throw new Error(`Client is not connected: Please call connectClient method first`);
     }
   }
@@ -168,10 +161,9 @@ export default class Client {
     try {
       this.unsubscribeFromTopics(this.topics);
     } catch (e) {}
-    if (this._connected) {
+    if (this.client!.connected) {
       this.client!.end();
     }
-    this._connected = false;
     this._subscribed = false;
     this.client = null;
     this._handlers = [];
