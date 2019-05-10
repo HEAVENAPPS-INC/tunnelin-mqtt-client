@@ -1,6 +1,6 @@
 {
   "name": "mqtt-client-js",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Tunnelin nodejs Mqtt client for devices",
   "repository": "https://git.haffollc.com/tunnelin/node-mqtt-device-client.git",
   "author": "Gevorg <gtopikyan@haffollc.com>",

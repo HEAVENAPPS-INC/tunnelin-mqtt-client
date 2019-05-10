@@ -26,7 +26,17 @@ export default class Client {
 
   public async connectClient() {
     this.client = createClient(this.serverUrl, this.mqttConnectOptions);
-    await connectClient(this.client);
+    const connectFn = async () => {
+      try {
+        await connectClient(this.client!);
+      } catch (e) {
+        console.log(JSON.stringify(e));
+      }
+      if (!this.client!.connected) {
+        setTimeout(connectFn, 1500);
+      }
+    };
+    await connectFn();
     this.client.on("message", this.onMqttMessage);
   }
 
@@ -40,7 +50,6 @@ export default class Client {
   }
 
   public subscribeToTopics(topics: string | string[]) {
-    this.assertConnected();
     let t = typeof topics === "string" ? [topics] : topics;
     if (t.length) {
       t = t.filter(topic => this.topics.indexOf(topic) === -1);
@@ -51,7 +60,6 @@ export default class Client {
   }
 
   public unsubscribeFromTopics(topics: string | string[]) {
-    this.assertConnected();
     const t = typeof topics === "string" ? [topics] : topics;
     if (t.length) {
       unsubscribeFromTopics(this.client!, t, this.mqttEnv);
@@ -70,7 +78,6 @@ export default class Client {
   }
 
   public publish(topic: string, message: any) {
-    this.assertConnected();
     publish(this.client!, topic, message, this.mqttEnv);
   }
 
@@ -148,12 +155,6 @@ export default class Client {
           }
         }
       }
-    }
-  }
-
-  private assertConnected() {
-    if (!this.client!.connected) {
-      throw new Error(`Client is not connected: Please call connectClient method first`);
     }
   }
 

@@ -79,7 +79,18 @@ var MqttClient = (function (exports,mqtt) {
         }
         async connectClient() {
             this.client = createClient(this.serverUrl, this.mqttConnectOptions);
-            await connectClient(this.client);
+            const connectFn = async () => {
+                try {
+                    await connectClient(this.client);
+                }
+                catch (e) {
+                    console.log(JSON.stringify(e));
+                }
+                if (!this.client.connected) {
+                    setTimeout(connectFn, 1500);
+                }
+            };
+            await connectFn();
             this.client.on("message", this.onMqttMessage);
         }
         async endClient() {
@@ -91,7 +102,6 @@ var MqttClient = (function (exports,mqtt) {
             });
         }
         subscribeToTopics(topics) {
-            this.assertConnected();
             let t = typeof topics === "string" ? [topics] : topics;
             if (t.length) {
                 t = t.filter(topic => this.topics.indexOf(topic) === -1);
@@ -101,7 +111,6 @@ var MqttClient = (function (exports,mqtt) {
             }
         }
         unsubscribeFromTopics(topics) {
-            this.assertConnected();
             const t = typeof topics === "string" ? [topics] : topics;
             if (t.length) {
                 unsubscribeFromTopics(this.client, t, this.mqttEnv);
@@ -118,7 +127,6 @@ var MqttClient = (function (exports,mqtt) {
             return [...this.topics];
         }
         publish(topic, message) {
-            this.assertConnected();
             publish(this.client, topic, message, this.mqttEnv);
         }
         addHandler(fn) {
@@ -173,11 +181,6 @@ var MqttClient = (function (exports,mqtt) {
                         }
                     }
                 }
-            }
-        }
-        assertConnected() {
-            if (!this.client.connected) {
-                throw new Error(`Client is not connected: Please call connectClient method first`);
             }
         }
         destroy() {

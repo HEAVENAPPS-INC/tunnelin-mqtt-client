@@ -22,6 +22,5 @@ export default class Client {
     private getTopicWithoutHash;
     private onMqttMessage;
     private provideMessageToActionHandlers;
-    private assertConnected;
     destroy(): void;
 }
