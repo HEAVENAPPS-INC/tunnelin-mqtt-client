@@ -16,12 +16,12 @@ export default {
       dir: "dist/cjs"
       // file: "dist/cjs/public_api.js"
     },
-    {
-      //   file: pkg.module,
-      format: "esm",
-      dir: "dist/esm"
-      // file: "dist/esm/public_api.js"
-    }
+    // {
+    //   //   file: pkg.module,
+    //   format: "esm",
+    //   dir: "dist/esm"
+    //   // file: "dist/esm/public_api.js"
+    // }
   ],
   external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})]
 };
